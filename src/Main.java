@@ -1,5 +1,11 @@
+import gui.*;
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        try {
+            View view = new View();
+            view.showCalculator();
+        } catch(Exception ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }
