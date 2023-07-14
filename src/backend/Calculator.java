@@ -28,8 +28,13 @@ public class Calculator extends CStack {
     }
     public static int evaluatePostfixExpression(String _expression) {
         m_stack = new Stack<Integer>();
-        String m_expression = _expression.substring(0, _expression.length() - 1);
-        String[] tokens = m_expression.split(" ");
+        String m_expression;
+        String[] tokens = new String[]{};
+        if(_expression.contains("=")) {
+          m_expression  = _expression.substring(0, _expression.length() - 1);
+        } else {
+            tokens = _expression.split(" ");
+        }
 
         for(String token: tokens) {
             if(Parser.IsNumberCalc(token))  {
@@ -45,11 +50,6 @@ public class Calculator extends CStack {
         return m_stack.pop();
     }
 
-   private static boolean operationPriority(String t1_operator,String t2_operator) {
-        int t1_precedence = Parser.getPrecedence(t1_operator);
-        int t2_precedence = Parser.getPrecedence(t2_operator);
-        return t1_precedence>=t2_precedence;
-    }
     public static String evaluateInfixExpression(String  _expression) {
         Stack<String> t_stack = new Stack<String>();
         StringBuilder postfix = new StringBuilder();
@@ -104,7 +104,11 @@ public class Calculator extends CStack {
                 throw new IllegalArgumentException("Doesn't supported type" + _operator);
         }
     }
-
+    private static boolean operationPriority(String t1_operator,String t2_operator) {
+        int t1_precedence = Parser.getPrecedence(t1_operator);
+        int t2_precedence = Parser.getPrecedence(t2_operator);
+        return t1_precedence>=t2_precedence;
+    }
     public static boolean IsPostfixExpression(String _expression) {
         String m_expression = _expression.substring(0, _expression.length() - 1);
         String[] tokens  = m_expression.split(" ");
