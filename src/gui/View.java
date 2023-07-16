@@ -23,6 +23,8 @@ import org.jfree.chart.axis.ValueAxis;
 
 public class View extends JFrame {
    public  View() {
+       _history = new JButton("History");
+       _graph = new JButton("Graph");
          textField = new JTextField();
          maxInputJTextField();
         mainPanel = new JPanel();
@@ -77,25 +79,22 @@ public class View extends JFrame {
     }
 
    private void initLayout() {
-        JButton history = new JButton("History");
-        JButton graph = new JButton("Graph");
-
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+       JPanel topPanel = new JPanel();
+       topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        GridBagConstraints gbc = new GridBagConstraints();
+       GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.weightx = 0.5;
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 10, 0, 5);
-        topPanel.add(history, gbc);
+        topPanel.add(_history, gbc);
 
         gbc.weightx = 0.5;
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 10, 0, 15);
-        topPanel.add(graph, gbc);
+        topPanel.add(_graph, gbc);
 
         gbc.weightx = 1.0;
         gbc.gridx = 2;
@@ -104,8 +103,8 @@ public class View extends JFrame {
         gbc.anchor = GridBagConstraints.LINE_END;
         topPanel.add(textField, gbc);
 
-        graph.setFont(FONT_BUTTON);
-        history.setFont(FONT_BUTTON);
+        _graph.setFont(FONT_BUTTON);
+        _history.setFont(FONT_BUTTON);
        JScrollPane scrollPane = new JScrollPane(_graphPanel);
        scrollPane.setPreferredSize(new java.awt.Dimension(500, 450));
 
@@ -152,8 +151,11 @@ public class View extends JFrame {
 
        JButton resetButton = new JButton("Reset");
         resetButton.addActionListener(actionEvent -> {
-
-
+            xMaxField.setText("10");
+            xMinField.setText("-10");
+            yMinField.setText("-5");
+            yMaxField.setText("10");
+            _graph.doClick();
         });
 
        _graphPanel.setLayout(new GridBagLayout());
@@ -212,12 +214,13 @@ public class View extends JFrame {
         JFreeChart chart = ChartFactory.createXYLineChart("Graph","X","Y",dataSet);
         ChartPanel chartPanel = new ChartPanel(chart);
 
+        this._graph.addActionListener(actionEvent ->  {
+            ValueAxis xAxis = chart.getXYPlot().getDomainAxis();
+            xAxis.setRange(Double.parseDouble(xMinField.getText()),Double.parseDouble(xMaxField.getText()));
 
-        ValueAxis xAxis = chart.getXYPlot().getDomainAxis();
-        xAxis.setRange(Double.parseDouble(xMinField.getText()),Double.parseDouble(xMaxField.getText()));
-
-        ValueAxis yAxis = chart.getXYPlot().getRangeAxis();
-        yAxis.setRange(Double.parseDouble(yMinField.getText()),Double.parseDouble(yMaxField.getText()));
+            ValueAxis yAxis = chart.getXYPlot().getRangeAxis();
+            yAxis.setRange(Double.parseDouble(yMinField.getText()),Double.parseDouble(yMaxField.getText()));
+        });
 
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -264,6 +267,10 @@ public class View extends JFrame {
     private void addButtonCaclulator(Component _button) {
         _panel.add(_button);
     }
+
+    JButton _history;
+
+   JButton _graph;
 
     private final JPanel _panel;
 

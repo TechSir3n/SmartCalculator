@@ -6,7 +6,7 @@ public class Parser {
         for (int i = 0; i < _sym.length(); i++) {
             char c = _sym.charAt(i);
             switch (c) {
-                case '+', '-', '*', '/', '%', '^', ')', '(' -> {
+                case '+', '-', '*', '/', '%', '^' -> {
                     return true;
 
                 }
