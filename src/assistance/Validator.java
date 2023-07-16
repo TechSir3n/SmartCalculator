@@ -1,11 +1,25 @@
 package assistance;
 
 import backend.Parser;
+import java.util.Stack;
 
 public class Validator {
-    static boolean parenthess(char _parenthess) {
-        
-        return true;
+    public static boolean parenthess(String _expression) {
+        Stack<Character> _stack = new Stack<Character>();
+
+        for(char c : _expression.toCharArray()) {
+            if(c == '(') {
+                _stack.push(c);
+            } else if(c == ')') {
+                if(!_stack.isEmpty() && _stack.peek() == '(') {
+                    _stack.pop();
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return _stack.isEmpty();
     }
 
     public static boolean IsPostfixExpression(String _expression) {
