@@ -3,6 +3,7 @@ import assistance.Defines;
 import backend.Parser.*;
 import java.util.Stack;
 import assistance.Validator;
+import assistance.Token;
 
 public class Calculator extends CStack {
     public static int evaluatePrefixExpression(String _expression) {
@@ -12,10 +13,14 @@ public class Calculator extends CStack {
 
         for(int i =  tokens.length-1;i>=0;i--) {
             String token = tokens[i];
-            if(Parser.IsNumberCalc(token)) {  // check numbers 0 9 1 2
+            if(Parser.IsNumberCalc(token)) {
                 int operand = Integer.parseInt(token);
                 m_stack.push(operand);
-            } else if(Parser.IsOperatorCalc(token))  {       // check operators / * - +
+            } else if(Parser.IsOperatorCalc(token))  {
+                if(m_stack.size()<2) {
+                    throw new IllegalArgumentException("Invalid expression format");
+                }
+
                 int t1_operand = m_stack.pop();
                 int t2_operand = m_stack.pop();
                 int result  = performExpression(token,t1_operand,t2_operand);
@@ -28,10 +33,12 @@ public class Calculator extends CStack {
     }
     public static int evaluatePostfixExpression(String _expression) {
         m_stack = new Stack<Integer>();
+        StringBuilder builder = new StringBuilder();
         String m_expression;
         String[] tokens = new String[]{};
-        if(_expression.contains("=")) {
-          m_expression  = _expression.substring(0, _expression.length() - 1);
+        if(_expression.endsWith("=")) {
+          m_expression = _expression.replace("=","");
+          tokens = m_expression.split(" ");
         } else {
             tokens = _expression.split(" ");
         }
@@ -41,12 +48,27 @@ public class Calculator extends CStack {
                 int operand = Integer.parseInt(token);
                 m_stack.push(operand);
             } else if(Parser.IsOperatorCalc(token)) {
-                int t1_operand = m_stack.pop();
-                int t2_operand = m_stack.pop();
-                int result = performExpression(token,t1_operand,t2_operand);
-                m_stack.push(result);
+                while (!m_stack.isEmpty() && operationPriority(token,String.valueOf(m_stack.peek()))) {
+                    if(m_stack.size()<2) {
+                        break;
+                    }
+                        int t1_operand = m_stack.pop();
+                        int t2_operand = m_stack.pop();
+                        System.out.println(t1_operand);
+                    System.out.println(t2_operand);
+                        int result = performExpression(token,t2_operand,t1_operand);
+                        m_stack.push(result);
+                }
             }
         }
+
+        while(m_stack.size() > 1){
+            int t1_operand = m_stack.pop();
+            int t2_operand = m_stack.pop();
+            int result = performExpression(String.valueOf(m_stack.pop()),t2_operand,t1_operand);
+            m_stack.push(result);
+        }
+
         return m_stack.pop();
     }
 
@@ -105,30 +127,11 @@ public class Calculator extends CStack {
         }
     }
     private static boolean operationPriority(String t1_operator,String t2_operator) {
-        int t1_precedence = Parser.getPrecedence(t1_operator);
-        int t2_precedence = Parser.getPrecedence(t2_operator);
-        return t1_precedence>=t2_precedence;
-    }
-    public static boolean IsPostfixExpression(String _expression) {
-        String m_expression = _expression.substring(0, _expression.length() - 1);
-        String[] tokens  = m_expression.split(" ");
-        return Parser.IsNumberCalc(tokens[0]) && Parser.IsNumberCalc(tokens[1])
-                && Parser.IsOperatorCalc(tokens[2]);
+        int t1_precedence = Parser.getPrecedence(Token.O_PLUS);
+        int t2_precedence = Parser.getPrecedence(Token.O_PLUS);
+        return t1_precedence<=t2_precedence;
     }
 
-    public static boolean IsPrefixExpression(String _expression) {
-        String m_expression = _expression.substring(0, _expression.length() - 1);
-        String[] tokens = m_expression.split(" ");
-        return Parser.IsOperatorCalc(tokens[0]) && Parser.IsNumberCalc(tokens[1])
-                && Parser.IsNumberCalc(tokens[2]);
-    }
-
-    public static boolean IsInfixExpression(String _expression) {
-        String m_expression = _expression.substring(0, _expression.length() - 1);
-        String[] tokens = m_expression.split(" ");
-        return Parser.IsNumberCalc(tokens[0]) && Parser.IsOperatorCalc(tokens[1])
-                && Parser.IsNumberCalc(tokens[2]);
-    }
  private static Stack<Integer> m_stack;
 }
 
