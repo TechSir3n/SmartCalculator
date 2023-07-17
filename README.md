@@ -1,7 +1,7 @@
 #  Implementation of SmartCalc v3.0
 
 ## Demonstation
-
+![MineLaunch Screenshot](https://github.com/TechSir3n/SmartCalculator/screenshorts/view_calculator.png)
 
 ### Arithmetic operators
 | Operator name | Infix notation |

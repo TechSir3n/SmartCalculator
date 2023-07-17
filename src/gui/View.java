@@ -1,4 +1,5 @@
 package gui;
+
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.text.*;
@@ -16,59 +17,62 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.io.IOException;
 import java.math.*;
+
 import org.jfree.chart.axis.ValueAxis;
+
 import java.text.DecimalFormat;
 
 public class View extends JFrame {
-   public  View() {
-       _history = new JButton("History");
-       _graph = new JButton("Graph");
-         textField = new JTextField();
-         maxInputJTextField();
+    public View() {
+        _history = new JButton("History");
+        _graph = new JButton("Graph");
+
+        textField = new JTextField();
+        maxInputJTextField();
+        _nameFunction = "Function";
+
         mainPanel = new JPanel();
-         _graphPanel  = new JPanel();
-         _nameFunction =  "Function";
-       _panel = new JPanel(new GridLayout(5,5));
-       _panel.setBackground(new Color(240, 240, 240));
+        _graphPanel = new JPanel();
+        _panel = new JPanel(new GridLayout(5, 5));
+        _panel.setBackground(new Color(240, 240, 240));
 
-       _history.addActionListener(actionEvent -> {
-           try {
-               showHistory();
-           } catch (IOException e) {
-               throw new RuntimeException(e);
-           }
-       });
-
+        _history.addActionListener(actionEvent -> {
+            try {
+                showHistory();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-   private  void maxInputJTextField() {
+    private void maxInputJTextField() {
         ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
             @Override
-            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws  BadLocationException {
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
                 Document doc = fb.getDocument();
                 StringBuilder sb = new StringBuilder();
                 sb.append(doc.getText(0, doc.getLength()));
 
-                if (length > 0) {
+                if(length > 0) {
                     sb.delete(offset, offset + length);
                 }
 
                 sb.insert(offset, text);
-                if (sb.length() <= Defines.MAX_EXPRESSION.getValue()) {
+                if(sb.length() <= Defines.MAX_EXPRESSION.getValue()) {
                     super.replace(fb, offset, length, text, attrs);
                 } else {
-                   JOptionPane.showMessageDialog(null, "Maximum count of number: " + Defines.MAX_EXPRESSION.getValue(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Maximum count of number: " + Defines.MAX_EXPRESSION.getValue(), "Warning", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
     }
 
     public void showCalculator() {
-        textField.setBounds(210, 10, 470, 55);
         textField.setToolTipText("Enter expression");
         textField.setName("Expression");
         Font fontTextField = new Font("Arial", Font.PLAIN, 24);
         textField.setFont(FONT_TEXT_FIELD);
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
         _panel.setLayout(new GridLayout(0, 6, 10, 10));
 
         for (String label : BUTTON_LABELS) {
@@ -80,26 +84,27 @@ public class View extends JFrame {
 
         _panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         textField.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         initGraph();
         initLayout();
     }
 
-   private void initLayout() {
-       JPanel topPanel = new JPanel();
-       topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-       topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-       GridBagConstraints gbc = new GridBagConstraints();
+    private void initLayout() {
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.weightx = 0.5;
+        gbc.weightx = 0.3;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.insets = new Insets(0, 10, 0, 5);
+        gbc.insets = new Insets(0, 5, 0, 10);
         topPanel.add(_history, gbc);
 
-        gbc.weightx = 0.5;
+        gbc.weightx = 0.3;
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.insets = new Insets(0, 10, 0, 15);
+        gbc.insets = new Insets(0, 15, 0, 10);
         topPanel.add(_graph, gbc);
 
         gbc.weightx = 1.0;
@@ -111,21 +116,21 @@ public class View extends JFrame {
 
         _graph.setFont(FONT_BUTTON);
         _history.setFont(FONT_BUTTON);
-       JScrollPane scrollPane = new JScrollPane(_graphPanel);
-       scrollPane.setPreferredSize(new java.awt.Dimension(500, 450));
+        JScrollPane scrollPane = new JScrollPane(_graphPanel);
+        scrollPane.setPreferredSize(new java.awt.Dimension(500, 450));
 
         mainPanel.setBackground(Color.WHITE);
         mainPanel.setLayout(new BorderLayout());
-        mainPanel.add(topPanel,BorderLayout.NORTH);
-        mainPanel.add(_panel,BorderLayout.CENTER);
-        mainPanel.add(scrollPane,BorderLayout.EAST);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(_panel, BorderLayout.CENTER);
+        mainPanel.add(scrollPane, BorderLayout.EAST);
 
         add(mainPanel);
         pack();
 
-       setLayout(new BorderLayout());
-       setPreferredSize(new Dimension(1000,700));
-       setResizable(false);
+        setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(1000, 700));
+        setResizable(false);
 
         setLocationRelativeTo(null);
         setBackground(Color.WHITE);
@@ -137,11 +142,15 @@ public class View extends JFrame {
     }
 
     void initGraph() {
-       JLabel xMinLabel = new JLabel("Xmin");
-       JLabel xMaxLabel = new JLabel("Ymax");
+        JLabel xMinLabel = new JLabel("Xmin");
+        JLabel xMaxLabel = new JLabel("Ymax");
 
-       JLabel yMinLabel = new JLabel("Ymin");
-       JLabel yMaxLabel = new JLabel("Xmax");
+        JLabel yMinLabel = new JLabel("Ymin");
+        JLabel yMaxLabel = new JLabel("Xmax");
+
+        JLabel xLabel = new JLabel("X");
+        JTextField xField = new JTextField(7);
+        xField.setText("0");
 
         JTextField yMinField = new JTextField(7);
         yMinField.setText("-5");
@@ -155,7 +164,7 @@ public class View extends JFrame {
         JTextField xMaxField = new JTextField(7);
         xMaxField.setText("10");
 
-       JButton resetButton = new JButton("Reset");
+        JButton resetButton = new JButton("Reset");
         resetButton.addActionListener(actionEvent -> {
             xMaxField.setText("10");
             xMinField.setText("-10");
@@ -164,50 +173,58 @@ public class View extends JFrame {
             _graph.doClick();
         });
 
-       _graphPanel.setLayout(new GridBagLayout());
-       GridBagConstraints gbc = new GridBagConstraints();
+        _graphPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0, 0, 10, 5);
+        gbc.insets = new Insets(0, 0, 10, 3);
 
-       gbc.gridx = 0;
-       gbc.gridy= 0 ;
-       _graphPanel.add(xMinLabel,gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        _graphPanel.add(xMinLabel, gbc);
 
-       gbc.gridx = 0;
-       gbc.gridy = 1;
-       _graphPanel.add(xMinField,gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        _graphPanel.add(xMinField, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy= 0 ;
-        _graphPanel.add(yMinLabel,gbc);
+        gbc.gridy = 0;
+        _graphPanel.add(yMinLabel, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 1;
-        _graphPanel.add(yMinField,gbc);
+        _graphPanel.add(yMinField, gbc);
 
         gbc.gridx = 2;
-        gbc.gridy= 0;
-        _graphPanel.add(xMaxLabel,gbc);
+        gbc.gridy = 0;
+        _graphPanel.add(xMaxLabel, gbc);
 
         gbc.gridx = 2;
         gbc.gridy = 1;
-        _graphPanel.add(xMaxField,gbc);
+        _graphPanel.add(xMaxField, gbc);
 
         gbc.gridx = 3;
-        gbc.gridy= 0 ;
-        _graphPanel.add(yMaxLabel,gbc);
+        gbc.gridy = 0;
+        _graphPanel.add(yMaxLabel, gbc);
 
         gbc.gridx = 3;
         gbc.gridy = 1;
-        _graphPanel.add(yMaxField,gbc);
+        _graphPanel.add(yMaxField, gbc);
+
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        _graphPanel.add(xLabel,gbc);
 
         gbc.gridx = 4;
         gbc.gridy = 1;
-        _graphPanel.add(resetButton,gbc);
+        _graphPanel.add(xField,gbc);
 
-       DefaultXYDataset dataSet = new DefaultXYDataset();
-       double[][] data = new double[2][100];
-        for (int i = 0; i < 100; i++) {
+        gbc.gridx = 5;
+        gbc.gridy = 1;
+        _graphPanel.add(resetButton, gbc);
+
+        DefaultXYDataset dataSet = new DefaultXYDataset();
+        double[][] data = new double[2][100];
+        for(int i = 0; i < 100; i++) {
             double x = i * 0.1;
             double y = Math.sin(x);
 
@@ -215,82 +232,91 @@ public class View extends JFrame {
             data[1][i] = y;
         }
 
-        dataSet.addSeries(_nameFunction,data);
+        dataSet.addSeries(_nameFunction, data);
 
-        JFreeChart chart = ChartFactory.createXYLineChart("Graph","X","Y",dataSet);
+        JFreeChart chart = ChartFactory.createXYLineChart("Graph", "X", "Y", dataSet);
         ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(400,300));
 
-        this._graph.addActionListener(actionEvent ->  {
+        this._graph.addActionListener(actionEvent -> {
             ValueAxis xAxis = chart.getXYPlot().getDomainAxis();
-            xAxis.setRange(Double.parseDouble(xMinField.getText()),Double.parseDouble(xMaxField.getText()));
+            xAxis.setRange(Double.parseDouble(xMinField.getText()), Double.parseDouble(xMaxField.getText()));
 
             ValueAxis yAxis = chart.getXYPlot().getRangeAxis();
-            yAxis.setRange(Double.parseDouble(yMinField.getText()),Double.parseDouble(yMaxField.getText()));
+            yAxis.setRange(Double.parseDouble(yMinField.getText()), Double.parseDouble(yMaxField.getText()));
         });
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth = 5;
+        gbc.gridwidth = 6;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        _graphPanel.add(chartPanel,gbc);
+        _graphPanel.add(chartPanel, gbc);
     }
 
     private static JButton getjButton(String label, JTextField textField) {
         JButton button = new JButton(label);
         button.addActionListener(actionEvent -> {
-                JButton clickedButton = (JButton) actionEvent.getSource();
-                String buttonLabel = clickedButton.getText();
-                String previousLabel = textField.getText();
-                if(buttonLabel.equals("AC")) {
-                    textField.setText("");
-                    return;
-                } else if (buttonLabel.equals("=")) {
-                    double result = 0;
-                    if(Validator.IsPostfixExpression(previousLabel + buttonLabel)) {
-                        if(Validator.parenthess(previousLabel + buttonLabel)) {
-                            result = Calculator.evaluatePostfixExpression(previousLabel + buttonLabel);
-                        } else {
-                            throw new RuntimeException("Invalid parentheses format");
-                        }
-                    } else if(Validator.IsPrefixExpression(previousLabel + buttonLabel)) {
-                        if(Validator.parenthess(previousLabel + buttonLabel)) {
-                            result = Calculator.evaluatePrefixExpression(previousLabel + buttonLabel);
-                        } else {
-                            throw new RuntimeException("Invalid parentheses format");
-                        }
-                    } else if(Validator.IsInfixExpression(previousLabel + buttonLabel)) {
-                        String postfixExpression  = Calculator.evaluateInfixExpression(previousLabel + buttonLabel);
-                        result  = Calculator.evaluatePostfixExpression(postfixExpression);
-                    } else if(Validator.IsFunctionExpression(previousLabel + buttonLabel)) {
-                        result =  Calculator.evaluateFuncExpression(previousLabel+  buttonLabel);
+            JButton clickedButton = (JButton) actionEvent.getSource();
+            String buttonLabel = clickedButton.getText();
+            String previousLabel = textField.getText();
+            if(buttonLabel.equals("AC")) {
+                textField.setText("");
+                return;
+            } else if(buttonLabel.equals("=")) {
+                double result = 0;
+                if(Validator.IsPostfixExpression(previousLabel + buttonLabel)) {
+                    if(Validator.parenthess(previousLabel + buttonLabel)) {
+                        result = Calculator.evaluatePostfixExpression(previousLabel + buttonLabel);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Invalid parentheses format",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
-
-                    DecimalFormat _decimalFormat = new DecimalFormat();
-                    _decimalFormat.setMaximumFractionDigits(Defines.MAX_SIGNS.getValue());
-
-                    try {
-                        StoryHistory.saveExpression(previousLabel + buttonLabel + result);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                } else if(Validator.IsPrefixExpression(previousLabel + buttonLabel)) {
+                    if(Validator.parenthess(previousLabel + buttonLabel)) {
+                        result = Calculator.evaluatePrefixExpression(previousLabel + buttonLabel);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Invalid parentheses format",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                     }
-
-                    textField.setText(String.valueOf(_decimalFormat.format(result)));
-                    return;
+                } else if(Validator.IsInfixExpression(previousLabel + buttonLabel)) {
+                    String postfixExpression = Calculator.evaluateInfixExpression(previousLabel + buttonLabel);
+                    result = Calculator.evaluatePostfixExpression(postfixExpression);
+                } else if(Validator.IsFunctionExpression(previousLabel + buttonLabel)) {
+                    if(Validator.parenthess(previousLabel + buttonLabel)) {
+                        result = Calculator.evaluateFuncExpression(previousLabel + buttonLabel);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Invalid parentheses format",
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-                  textField.setText(previousLabel + buttonLabel);
 
-            });
+                DecimalFormat _decimalFormat = new DecimalFormat();
+                _decimalFormat.setMaximumFractionDigits(Defines.MAX_SIGNS.getValue());
+
+                try {
+                    StoryHistory.saveExpression(previousLabel + buttonLabel + result);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                textField.setText(String.valueOf(_decimalFormat.format(result)));
+                return;
+            }
+            textField.setText(previousLabel + buttonLabel);
+
+        });
         return button;
     }
 
     private static void showHistory() throws IOException {
-        JTextArea _area = new JTextArea();;
+        JTextArea _area = new JTextArea();
+        ;
         _area.setEditable(false);
-        _area.setPreferredSize(new Dimension(300,400));
+        _area.setPreferredSize(new Dimension(300, 400));
 
-        for(String operation: StoryHistory.getHistory()) {
+        for(String operation : StoryHistory.getHistory()) {
             _area.append(operation + "\n");
         }
 
@@ -302,47 +328,45 @@ public class View extends JFrame {
         fileMenu.add(itemExit);
         menuBar.add(fileMenu);
 
-          itemExit.addActionListener(actionEvent -> {
-                System.exit(0);
-          });
+        itemExit.addActionListener(actionEvent -> {
+            System.exit(0);
+        });
 
-          itemClear.addActionListener(actionEvent -> {
-              try {
-                  StoryHistory.clearHistory();
-                  _area.setText("");
-              } catch (IOException e) {
-                  throw new RuntimeException(e);
-              }
-          });
+        itemClear.addActionListener(actionEvent -> {
+            try {
+                StoryHistory.clearHistory();
+                _area.setText("");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-
-      JFrame frame = new JFrame("History");
-      frame.setJMenuBar(menuBar);
-      frame.add(new JScrollPane(_area));
-      frame.pack();
-      frame.setVisible(true);
+        JFrame frame = new JFrame("History");
+        frame.setLocationRelativeTo(null);
+        frame.setJMenuBar(menuBar);
+        frame.add(new JScrollPane(_area));
+        frame.pack();
+        frame.setVisible(true);
     }
 
     private void setUseNameFunction(String _name) {
         _nameFunction = _name;
     }
-
     private void addButtonCaclulator(Component _button) {
         _panel.add(_button);
     }
-
     static JButton _history;
-     JButton _graph;
-   private final JPanel _panel;
-   private final  JPanel mainPanel;
-   private final JPanel _graphPanel;
+    JButton _graph;
+    private final JPanel _panel;
+    private final JPanel mainPanel;
+    private final JPanel _graphPanel;
 
     private final JTextField textField;
     private static String _nameFunction;
 
-    private static final Font FONT_TEXT_FIELD = new Font("Arial",Font.PLAIN,24);
-    private static final Font FONT_BUTTON = new Font("Arial",Font.BOLD,16);
-    private static final Color COLOR_BUTTON = new Color(255,255,255);
+    private static final Font FONT_TEXT_FIELD = new Font("Arial", Font.PLAIN, 24);
+    private static final Font FONT_BUTTON = new Font("Arial", Font.BOLD, 16);
+    private static final Color COLOR_BUTTON = new Color(255, 255, 255);
 
     private static final String[] BUTTON_LABELS = {
             "cos", "log", "AC", "(", ")", "%",

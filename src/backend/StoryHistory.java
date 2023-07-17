@@ -1,6 +1,8 @@
 package backend;
 
 import java.io.*;
+import java.util.ArrayList;
+
 public class StoryHistory {
     public static void saveExpression(final String _expression) throws IOException {
         try(FileWriter file = new FileWriter(FILE_PATH,true)) {
@@ -12,19 +14,20 @@ public class StoryHistory {
       FileReader reader = new FileReader(FILE_PATH);
       BufferedReader bufferReader = new BufferedReader(reader);
       String line;
-      String[] operations = null;
+      ArrayList<String> operations = new ArrayList<>();
 
-       while(((line = bufferReader.readLine()))!=null) {
-            operations = line.split("\n");
+       while ((line = bufferReader.readLine()) != null) {
+           operations.add(line);
        }
 
        reader.close();
        bufferReader.close();
-       if(operations == null || operations.length == 0) {
-           throw new NullPointerException("File is empty()");
+
+       if (operations.isEmpty()) {
+           throw new NullPointerException("File is empty");
        }
 
-       return operations;
+       return operations.toArray(new String[0]);
     }
 
   public static void clearHistory() throws IOException {
