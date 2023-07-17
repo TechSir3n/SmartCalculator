@@ -1,16 +1,11 @@
 package gui;
 import javax.swing.*;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.PlainDocument;
 import java.awt.*;
-import javax.swing.text.Document;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.AbstractDocument;
-import java.awt.event.ActionEvent;
-import javax.swing.text.BadLocationException;
-import java.awt.event.ActionListener;
+import javax.swing.text.*;
+import java.awt.event.*;
 
+import backend.StoryHistory;
+import backend.StoryHistory.*;
 import assistance.Validator;
 import backend.Calculator;
 import assistance.Defines;
@@ -18,8 +13,11 @@ import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.category.DefaultCategoryDataset;
+
+import java.io.IOException;
 import java.math.*;
 import org.jfree.chart.axis.ValueAxis;
+import java.text.DecimalFormat;
 
 public class View extends JFrame {
    public  View() {
@@ -32,6 +30,14 @@ public class View extends JFrame {
          _nameFunction =  "Function";
        _panel = new JPanel(new GridLayout(5,5));
        _panel.setBackground(new Color(240, 240, 240));
+
+       _history.addActionListener(actionEvent -> {
+           try {
+               showHistory();
+           } catch (IOException e) {
+               throw new RuntimeException(e);
+           }
+       });
 
     }
 
@@ -119,7 +125,7 @@ public class View extends JFrame {
 
        setLayout(new BorderLayout());
        setPreferredSize(new Dimension(1000,700));
-        setResizable(false);
+       setResizable(false);
 
         setLocationRelativeTo(null);
         setBackground(Color.WHITE);
@@ -241,23 +247,80 @@ public class View extends JFrame {
                     textField.setText("");
                     return;
                 } else if (buttonLabel.equals("=")) {
-                    int result = 0;
+                    double result = 0;
                     if(Validator.IsPostfixExpression(previousLabel + buttonLabel)) {
-                        result = Calculator.evaluatePostfixExpression(previousLabel + buttonLabel);
-                    } else if(Validator.IsPrefixExpression(previousLabel + buttonLabel)) {;
-                        result = Calculator.evaluatePrefixExpression(previousLabel + buttonLabel);
+                        if(Validator.parenthess(previousLabel + buttonLabel)) {
+                            result = Calculator.evaluatePostfixExpression(previousLabel + buttonLabel);
+                        } else {
+                            throw new RuntimeException("Invalid parentheses format");
+                        }
+                    } else if(Validator.IsPrefixExpression(previousLabel + buttonLabel)) {
+                        if(Validator.parenthess(previousLabel + buttonLabel)) {
+                            result = Calculator.evaluatePrefixExpression(previousLabel + buttonLabel);
+                        } else {
+                            throw new RuntimeException("Invalid parentheses format");
+                        }
                     } else if(Validator.IsInfixExpression(previousLabel + buttonLabel)) {
                         String postfixExpression  = Calculator.evaluateInfixExpression(previousLabel + buttonLabel);
                         result  = Calculator.evaluatePostfixExpression(postfixExpression);
                     } else if(Validator.IsFunctionExpression(previousLabel + buttonLabel)) {
-
+                        result =  Calculator.evaluateFuncExpression(previousLabel+  buttonLabel);
                     }
-                    textField.setText(String.valueOf(result));
+
+                    DecimalFormat _decimalFormat = new DecimalFormat();
+                    _decimalFormat.setMaximumFractionDigits(Defines.MAX_SIGNS.getValue());
+
+                    try {
+                        StoryHistory.saveExpression(previousLabel + buttonLabel + result);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    textField.setText(String.valueOf(_decimalFormat.format(result)));
                     return;
                 }
                   textField.setText(previousLabel + buttonLabel);
+
             });
         return button;
+    }
+
+    private static void showHistory() throws IOException {
+        JTextArea _area = new JTextArea();;
+        _area.setEditable(false);
+        _area.setPreferredSize(new Dimension(300,400));
+
+        for(String operation: StoryHistory.getHistory()) {
+            _area.append(operation + "\n");
+        }
+
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem itemClear = new JMenuItem("Clear History");
+        JMenuItem itemExit = new JMenuItem("Exit");
+        fileMenu.add(itemClear);
+        fileMenu.add(itemExit);
+        menuBar.add(fileMenu);
+
+          itemExit.addActionListener(actionEvent -> {
+                System.exit(0);
+          });
+
+          itemClear.addActionListener(actionEvent -> {
+              try {
+                  StoryHistory.clearHistory();
+                  _area.setText("");
+              } catch (IOException e) {
+                  throw new RuntimeException(e);
+              }
+          });
+
+
+      JFrame frame = new JFrame("History");
+      frame.setJMenuBar(menuBar);
+      frame.add(new JScrollPane(_area));
+      frame.pack();
+      frame.setVisible(true);
     }
 
     private void setUseNameFunction(String _name) {
@@ -268,29 +331,22 @@ public class View extends JFrame {
         _panel.add(_button);
     }
 
-    JButton _history;
-
-   JButton _graph;
-
-    private final JPanel _panel;
-
+    static JButton _history;
+     JButton _graph;
+   private final JPanel _panel;
    private final  JPanel mainPanel;
-
-    private final JPanel _graphPanel;
+   private final JPanel _graphPanel;
 
     private final JTextField textField;
-
     private static String _nameFunction;
 
     private static final Font FONT_TEXT_FIELD = new Font("Arial",Font.PLAIN,24);
-
     private static final Font FONT_BUTTON = new Font("Arial",Font.BOLD,16);
-
     private static final Color COLOR_BUTTON = new Color(255,255,255);
 
     private static final String[] BUTTON_LABELS = {
             "cos", "log", "AC", "(", ")", "%",
-            "sin", "in", "7", "8", "9", "/",
+            "sin", "ln", "7", "8", "9", "/",
             "tan", "sqrt", "4", "5", "6", "*",
             "acos", "atan", "1", "2", "3", "-",
             "asin", "^", "0", ",", "=", "+"

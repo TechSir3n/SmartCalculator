@@ -20,8 +20,11 @@ public enum Token {
     O_ASIN('S'),
 
     O_ATAN('T'),
+    O_TAN('t'),
+
     O_SQRT('Q'),
     O_LOG('L');
+
 
     private Token(char _sym) {
         this.symbol = _sym;

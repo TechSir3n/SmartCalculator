@@ -18,18 +18,19 @@ public class Parser {
        switch (_token) {
            case O_PLUS:
            case O_MINUS:
-               return 1;
+               return 50;
 
            case O_DIV:
            case O_MUL:
-               return 2;
+               return 40;
 
            case O_POW:
-               return 3;
+               return 30;
 
            case O_OPBRACK:
+               return 10;
            case O_CLOBRACK:
-               return 4;
+               return 20;
 
            case O_ACOS:
            case O_ASIN:
@@ -38,7 +39,7 @@ public class Parser {
            case O_LOG:
            case O_SIN:
            case O_SQRT:
-               return 6;
+               return 60;
 
            case O_UNKNOWN:
                throw new IllegalArgumentException("Unknown operator got");
@@ -49,7 +50,7 @@ public class Parser {
 
     public static boolean IsNumberCalc(String _num) {
         try {
-            Integer.parseInt(_num);
+            Double.parseDouble(_num);
             return true;
         } catch(NumberFormatException e) {
             return false;

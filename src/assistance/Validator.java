@@ -5,8 +5,11 @@ import java.util.Stack;
 
 public class Validator {
     public static boolean parenthess(String _expression) {
+        if(_expression.length() < 3) {
+            throw new RuntimeException("Expression cannot be less than 3 operand");
+        }
+        
         Stack<Character> _stack = new Stack<Character>();
-
         for(char c : _expression.toCharArray()) {
             if(c == '(') {
                 _stack.push(c);
@@ -96,7 +99,13 @@ public class Validator {
     }
 
     public static boolean IsFunctionExpression(String _expression) {
-        return Parser.IsFunctionCalc(_expression.substring(0,_expression.length() - 1));
+        String m_expression = m_expression = _expression.replaceAll("[=0-9()+\\-*^.,]", "");
+        String[]tokens =  m_expression.split(" ");
+        String m_token = null;
+        for(String token:tokens) {
+            m_token = token;
+        }
+        return Parser.IsFunctionCalc(m_token);
     }
 
    public static boolean IsDivisionByZero(String _expression) {
