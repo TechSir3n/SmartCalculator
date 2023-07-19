@@ -14,6 +14,7 @@ public class Parser {
         }
         return false;
     }
+    
     public static int getPrecedence(Token _token) {
        switch (_token) {
            case O_PLUS:
@@ -93,6 +94,7 @@ public class Parser {
             return false;
         }
     }
+    
    public  static boolean IsFunctionCalc(final String _func) {
          return switch (_func) {
              case "s",
