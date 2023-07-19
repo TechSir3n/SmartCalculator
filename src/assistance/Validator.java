@@ -26,7 +26,6 @@ public class Validator {
     }
 
     public static boolean IsPostfixExpression(String _expression) {
-        System.out.println("POSTFIX");
         Stack<Integer> stack = new Stack<Integer>();
         for(int i = 0; i < _expression.length(); i++) {
             char c = _expression.charAt(i);
@@ -46,7 +45,6 @@ public class Validator {
     }
 
     public static boolean IsPrefixExpression(String _expression) {
-        System.out.println("prefix");
         Stack<Integer> stack = new Stack<Integer>();
         for(int i = _expression.length() -1;i>=0;i--) {
             char c = _expression.charAt(i);
@@ -67,7 +65,6 @@ public class Validator {
 
     public static boolean IsInfixExpression(String _expression) {
         Stack<Character> stack = new Stack<Character>();
-        System.out.println("INFIX");
         for(int i = 0;i<_expression.length();i++) {
             char c =  _expression.charAt(i);
             if(Parser.IsFunctionCalc(String.valueOf(c))) {
@@ -89,7 +86,6 @@ public class Validator {
 
     public static boolean IsFunctionExpression(String _expression) {
         Stack<Character> stack = new Stack<Character>();
-
         for(int i = 0;i<_expression.length();i++) {
             char c =  _expression.charAt(i);
            if(Parser.IsFunctionCalc(String.valueOf(c))) {
