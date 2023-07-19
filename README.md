@@ -29,11 +29,3 @@
 | Computes natural logarithm | ln(x) |
 | Computes common logarithm | log(x) |
 ***
-
-
-# Build/Run
-```
-git clone https://github.com/TechSir3n/SmartCalculator.git
-cd SmartCalculator
-cp -r SmartCalculator.app  ~/Desktop
-``` 

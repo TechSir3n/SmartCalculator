@@ -5,6 +5,7 @@ import java.awt.*;
 import javax.swing.text.*;
 import java.awt.event.*;
 
+import backend.Parser;
 import backend.StoryHistory;
 import backend.StoryHistory.*;
 import assistance.Validator;
@@ -21,6 +22,7 @@ import java.math.*;
 import org.jfree.chart.axis.ValueAxis;
 
 import java.text.DecimalFormat;
+
 
 public class View extends JFrame {
     public View() {
@@ -170,6 +172,7 @@ public class View extends JFrame {
             xMinField.setText("-10");
             yMinField.setText("-5");
             yMaxField.setText("10");
+            xField.setText("0");
             _graph.doClick();
         });
 
@@ -224,13 +227,6 @@ public class View extends JFrame {
 
         DefaultXYDataset dataSet = new DefaultXYDataset();
         double[][] data = new double[2][100];
-        for(int i = 0; i < 100; i++) {
-            double x = i * 0.1;
-            double y = Math.sin(x);
-
-            data[0][i] = x;
-            data[1][i] = y;
-        }
 
         dataSet.addSeries(_nameFunction, data);
 
@@ -238,12 +234,26 @@ public class View extends JFrame {
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(400,300));
 
-        this._graph.addActionListener(actionEvent -> {
-            ValueAxis xAxis = chart.getXYPlot().getDomainAxis();
-            xAxis.setRange(Double.parseDouble(xMinField.getText()), Double.parseDouble(xMaxField.getText()));
+        final ValueAxis[] xAxis = {chart.getXYPlot().getDomainAxis()};
+        xAxis[0].setRange(Double.parseDouble(xMinField.getText()), Double.parseDouble(xMaxField.getText()));
 
-            ValueAxis yAxis = chart.getXYPlot().getRangeAxis();
-            yAxis.setRange(Double.parseDouble(yMinField.getText()), Double.parseDouble(yMaxField.getText()));
+        final ValueAxis[] yAxis = {chart.getXYPlot().getRangeAxis()};
+        yAxis[0].setRange(Double.parseDouble(yMinField.getText()), Double.parseDouble(yMaxField.getText()));
+
+        this._graph.addActionListener(actionEvent -> {
+            for(int i = 0; i < 100; i++) {
+                double x = i * Double.parseDouble(xField.getText());
+                double y = Math.sin(x);
+
+                data[0][i] = x;
+                data[1][i] = y;
+            }
+
+            xAxis[0] = chart.getXYPlot().getDomainAxis();
+            xAxis[0].setRange(Double.parseDouble(xMinField.getText()), Double.parseDouble(xMaxField.getText()));
+
+             yAxis[0] = chart.getXYPlot().getRangeAxis();
+             yAxis[0].setRange(Double.parseDouble(yMinField.getText()), Double.parseDouble(yMaxField.getText()));
         });
 
         gbc.gridx = 0;
@@ -266,32 +276,22 @@ public class View extends JFrame {
                 return;
             } else if(buttonLabel.equals("=")) {
                 double result = 0;
-                if(Validator.IsPostfixExpression(previousLabel + buttonLabel)) {
-                    if(Validator.parenthess(previousLabel + buttonLabel)) {
-                        result = Calculator.evaluatePostfixExpression(previousLabel + buttonLabel);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Invalid parentheses format",
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } else if(Validator.IsPrefixExpression(previousLabel + buttonLabel)) {
-                    if(Validator.parenthess(previousLabel + buttonLabel)) {
-                        result = Calculator.evaluatePrefixExpression(previousLabel + buttonLabel);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Invalid parentheses format",
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } else if(Validator.IsInfixExpression(previousLabel + buttonLabel)) {
-                    String postfixExpression = Calculator.evaluateInfixExpression(previousLabel + buttonLabel);
-                    result = Calculator.evaluatePostfixExpression(postfixExpression);
-                } else if(Validator.IsFunctionExpression(previousLabel + buttonLabel)) {
-                    if(Validator.parenthess(previousLabel + buttonLabel)) {
+                buttonLabel = buttonLabel.substring(0,buttonLabel.length() - 1);
+                if(Validator.parenthess(previousLabel + buttonLabel)) {
+                    if(Validator.IsFunctionExpression(previousLabel + buttonLabel)) {
                         result = Calculator.evaluateFuncExpression(previousLabel + buttonLabel);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Invalid parentheses format",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if(Validator.IsPostfixExpression(previousLabel + buttonLabel)) {
+                        result = Calculator.evaluatePostfixExpression(previousLabel + buttonLabel);
+                    } else if(Validator.IsPrefixExpression(previousLabel + buttonLabel)) {
+                        result = Calculator.evaluatePrefixExpression(previousLabel + buttonLabel);
+                    }  else if(Validator.IsInfixExpression(previousLabel + buttonLabel)) {
+                        String postfixExpression = Calculator.evaluateInfixExpression(previousLabel + buttonLabel);
+                        result = Calculator.evaluatePostfixExpression(postfixExpression);
                     }
+                }  else {
+                    JOptionPane.showMessageDialog(null, "Invalid parentheses format",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
-
                 DecimalFormat _decimalFormat = new DecimalFormat();
                 _decimalFormat.setMaximumFractionDigits(Defines.MAX_SIGNS.getValue());
 
@@ -300,7 +300,6 @@ public class View extends JFrame {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
                 textField.setText(String.valueOf(_decimalFormat.format(result)));
                 return;
             }
@@ -312,13 +311,14 @@ public class View extends JFrame {
 
     private static void showHistory() throws IOException {
         JTextArea _area = new JTextArea();
-        ;
         _area.setEditable(false);
-        _area.setPreferredSize(new Dimension(300, 400));
+        _area.setPreferredSize(new Dimension(300, 600));
 
         for(String operation : StoryHistory.getHistory()) {
             _area.append(operation + "\n");
         }
+
+        JScrollPane pane = new JScrollPane(_area);
 
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
@@ -344,7 +344,7 @@ public class View extends JFrame {
         JFrame frame = new JFrame("History");
         frame.setLocationRelativeTo(null);
         frame.setJMenuBar(menuBar);
-        frame.add(new JScrollPane(_area));
+        frame.add(pane);
         frame.pack();
         frame.setVisible(true);
     }

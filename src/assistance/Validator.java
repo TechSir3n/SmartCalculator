@@ -26,86 +26,81 @@ public class Validator {
     }
 
     public static boolean IsPostfixExpression(String _expression) {
-        String m_expression = _expression.substring(0, _expression.length() - 1);
-        String[] tokens  = m_expression.split(" ");
-
-        if(tokens.length < 3) {
-            return false;
-        }
-
-        int operandCount = 0;
-        int operatorCount = 0;
-
-        for(int i = 0; i < tokens.length; i++) {
-            if(Parser.IsNumberCalc(tokens[i])) {
-                operandCount++;
-            } else if(Parser.IsOperatorCalc(tokens[i])) {
-                operatorCount++;
-            } else {
-                return false;
+        System.out.println("POSTFIX");
+        Stack<Integer> stack = new Stack<Integer>();
+        for(int i = 0; i < _expression.length(); i++) {
+            char c = _expression.charAt(i);
+            if (Parser.IsNumberCalc(String.valueOf(c))) {
+                stack.push(1);
+            } else if (Parser.IsOperatorCalc(String.valueOf(c))) {
+                if (stack.size() < 2) {
+                    return false;
+                }
+                stack.pop();
+                stack.pop();
+                stack.push(1);
             }
         }
 
-        return operandCount == operatorCount + 1;
+        return stack.size() == 1;
     }
 
     public static boolean IsPrefixExpression(String _expression) {
-        String m_expression = _expression.substring(0, _expression.length() - 1);
-        String[] tokens = m_expression.split(" ");
-
-        if(tokens.length < 3) {
-            return false;
-        }
-        if(!Parser.IsOperatorCalc(tokens[0])) {
-            return false;
-        }
-
-        int operandCount = 0;
-        int operatorCount = 1;
-        for(int i = 1; i < tokens.length; i++) {
-            if(Parser.IsNumberCalc(tokens[i])) {
-                operandCount++;
-            } else if(Parser.IsOperatorCalc(tokens[i])) {
-                operatorCount++;
-            } else {
-                return false;
+        System.out.println("prefix");
+        Stack<Integer> stack = new Stack<Integer>();
+        for(int i = _expression.length() -1;i>=0;i--) {
+            char c = _expression.charAt(i);
+            if(Parser.IsNumberCalc(String.valueOf(c))) {
+                stack.push(1);
+            } else if(Parser.IsOperatorCalc(String.valueOf(c))) {
+                if(stack.size() < 2) {
+                    return false;
+                }
+                stack.pop();
+                stack.pop();
+                stack.push(1);
             }
         }
 
-        return operandCount == operatorCount;
+        return stack.size() == 1;
     }
 
     public static boolean IsInfixExpression(String _expression) {
-        String m_expression = _expression.substring(0, _expression.length() - 1);
-        String[] tokens = m_expression.split(" ");
-
-        if(tokens.length < 3) {
-            return false;
-        }
-
-        int operandCount = 0;
-        int operatorCount = 0;
-        for(int i = 0; i < tokens.length; i++) {
-            if(Parser.IsNumberCalc(tokens[i])) {
-                operandCount++;
-            } else if(Parser.IsOperatorCalc(tokens[i])) {
-                operatorCount++;
-            } else {
-                return false;
+        Stack<Character> stack = new Stack<Character>();
+        System.out.println("INFIX");
+        for(int i = 0;i<_expression.length();i++) {
+            char c =  _expression.charAt(i);
+            if(Parser.IsFunctionCalc(String.valueOf(c))) {
+                continue;
+            }else if(c == '(') {
+                stack.push(c);
+            } else if(c == ')') {
+                if(stack.isEmpty() || stack.pop()!='(') {
+                       return false;
+                }
+            } else if(Parser.IsNumberCalc(String.valueOf(c))) {
+                continue;
+            } else if(Parser.IsOperatorCalc(String.valueOf(c))) {
+                continue;
             }
         }
-
-        return operandCount == operatorCount + 1;
+        return stack.isEmpty();
     }
 
     public static boolean IsFunctionExpression(String _expression) {
-        String m_expression = m_expression = _expression.replaceAll("[=0-9()+\\-*^.,]", "");
-        String[]tokens =  m_expression.split(" ");
-        String m_token = null;
-        for(String token:tokens) {
-            m_token = token;
+        Stack<Character> stack = new Stack<Character>();
+
+        for(int i = 0;i<_expression.length();i++) {
+            char c =  _expression.charAt(i);
+           if(Parser.IsFunctionCalc(String.valueOf(c))) {
+               stack.push(c);
+            } else if(Parser.IsNumberCalc(String.valueOf(c))) {
+                continue;
+            } else if(Parser.IsOperatorCalc(String.valueOf(c))) {
+                continue;
+            }
         }
-        return Parser.IsFunctionCalc(m_token);
+        return !stack.isEmpty();
     }
 
    public static boolean IsDivisionByZero(String _expression) {

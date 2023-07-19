@@ -48,6 +48,43 @@ public class Parser {
        return 0;
     }
 
+    public static Token getToken(String _operator) {
+        switch(_operator) {
+            case "+":
+                return Token.O_PLUS;
+            case "-":
+                return Token.O_MINUS;
+            case "*":
+                return Token.O_MUL;
+            case "/":
+                return Token.O_DIV;
+            case "^":
+                return Token.O_POW;
+            case "(":
+                return Token.O_OPBRACK;
+            case ")":
+                return Token.O_CLOBRACK;
+            case "c":
+                return Token.O_COS;
+            case "C":
+                return Token.O_ACOS;
+            case "s":
+                return Token.O_SIN;
+            case "S":
+                return Token.O_ASIN;
+            case "T":
+                return Token.O_ATAN;
+            case "t":
+                return Token.O_TAN;
+            case "Q":
+                return Token.O_SQRT;
+            case "L":
+                return Token.O_LOG;
+            default:
+                return Token.O_UNKNOWN;
+        }
+    }
+
     public static boolean IsNumberCalc(String _num) {
         try {
             Double.parseDouble(_num);
@@ -58,15 +95,15 @@ public class Parser {
     }
    public  static boolean IsFunctionCalc(final String _func) {
          return switch (_func) {
-             case "sin",
-                  "sqrt",
-                  "log",
-                  "cos",
-                  "tan",
-                  "asin",
-                  "acos",
-                  "in",
-                  "atan" -> true;
+             case "s",
+                  "c",
+                  "C",
+                  "S",
+                  "t",
+                  "T",
+                  "L",
+                  "Q",
+                  "l" -> true;
 
              default -> false;
          };
